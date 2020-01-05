@@ -72,13 +72,20 @@ function decrypt() {
     todecryptE = document.getElementById('todecrypt');
     toencryptE = document.getElementById('toencrypt');
     toencryptE.value = decode(todecryptE.value)
+    toencryptE.select();
+    document.execCommand('copy');
+    todecryptE.focus();
 }
 function encrypt()
 {
     todecryptE = document.getElementById('todecrypt');
     toencryptE = document.getElementById('toencrypt');
-    todecryptE.value = encode(toencryptE.value)
+    str = todecryptE.value = encode(toencryptE.value)
+    todecryptE.select();
+    document.execCommand('copy');
+    toencryptE.focus();
 }
+
 
 function decodec(c, n, d) {
     console.assert(n < enc.length)
