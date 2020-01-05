@@ -1,0 +1,154 @@
+<html>
+<head>
+  <title>Form Validation</title>
+ <!--
+  <script type="text/javascript" src="crypto-js/crypto-js.js"></script>
+ -->
+  <script type="text/javascript" >
+
+
+/* 
+   var hash = CryptoJS.SHA1("Message");
+   console.log(hash)
+
+   var secret = 'secret key 123'
+
+   var data = [{id: 1}, {id: 2}]
+   data = "zob"
+   // Encrypt
+   var ciphertext = CryptoJS.Rabbit.encrypt(JSON.stringify(data), secret,  { outputLength: 16 } );
+   console.trace(ciphertext.toString());
+
+   // Decrypt
+   var bytes  = CryptoJS.Rabbit.decrypt(ciphertext.toString(), secret);
+   var decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+
+   console.trace(decryptedData);
+*/
+var digits = "0123456789";
+var alphas = "abcdefghijklmnopqrstuvwxyz";
+var alphaCs = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+var special = "_&#!?:;$=+-"
+
+var mark = "~"
+
+var tt = [ "christine", "louis", "bernard", "fanny", "solene", "david", "chevallier", "bordeau"];
+var conc = ""
+for (var i = 0; i < tt.length; i++) {
+    var str = tt[i];
+    for (var j = 0; j < str.length; j++) {
+        c = str.charAt(j)
+        if (! conc.includes(String(c))) {
+            conc += String(c)
+        }
+    }
+}
+conc = conc + conc.toUpperCase()
+var enc = digits + alphas + alphaCs + special
+//console.log(enc)
+cl = conc.length 
+enc = [enc.substring(0, cl), enc.substring(cl, cl*2), enc.substring(cl*2, 9999)]
+enc.push(mark)
+var alpha = "";
+var alphaC = []
+for (var i = 'a'.charCodeAt(0); i <= 'z'.charCodeAt(0); i++) {
+    //console.log("i=" + i)
+    n = i - 'a'.charCodeAt(0)
+    cc = String("00" + String(n)).slice(-2)
+    //console.log("cc=" + cc)
+    alphaC.push(cc)
+}
+
+e1 = encode("0aA+-")
+e2 = encode(e1)
+e2 = encode(e2)
+d2 = decode(e2)
+d1 = decode(d2)
+d0 = decode(d1)
+//console.log(d0)
+
+
+function decrypt() {
+    todecryptE = document.getElementById('todecrypt');
+    toencryptE = document.getElementById('toencrypt');
+    toencryptE.value = decode(todecryptE.value)
+}
+function encrypt()
+{
+    todecryptE = document.getElementById('todecrypt');
+    toencryptE = document.getElementById('toencrypt');
+    todecryptE.value = encode(toencryptE.value)
+}
+
+function decodec(c, n, d) {
+    console.assert(n < enc.length)
+    idx = conc.indexOf(c)
+    var res = "?"
+    if (idx >= 0) {
+        res = enc[n].substring(idx, idx+1)
+    }
+    return res
+}
+
+function encodec(c, n, d) {
+    console.assert(n < enc.length)
+    idx = enc[n].indexOf(c)
+    var res = "?"
+    if (idx >= 0) {
+        res = d + conc.substring(idx, idx+1)
+    } else {
+        res = d + encodec(c, n+1, mark)
+    }
+    return res
+}
+
+function encode(t) {
+    code = ""
+    for (var j = 0; j < t.length; j++) {
+	c = t.charAt(j)
+        code += encodec(c, 0, "")
+    }				
+    return code
+}
+
+function decode(t) {
+    //alert(t)
+    code = ""
+    var nn=0
+    for (var j = 0; j < t.length; j++) {
+	c = t.charAt(j)
+        if (c == mark) {
+            nn ++
+            if (nn > enc.length) {
+                code += mark
+                j++
+            }
+        } else {
+            code += decodec(c, nn, "")
+            nn = 0
+        }
+    }				
+    return code
+}
+
+
+
+
+  </script>
+</head>
+<body>
+	<table id="table1">
+      <tr>
+        <td>&Agrave; d&eacute;crypter:</td>
+        <td><input type="text" id="todecrypt" onkeyup="decrypt();0" size=50 /></td>
+        <td><div id="errFirst"></div></td>
+      </tr>
+      <tr>
+        <td>&Agrave; encrypter:</td>
+        <td><input type="text" id="toencrypt" onkeyup="encrypt();" size=50 /></td>
+        <td><div id="errLast"></div></td>
+      </tr>
+      
+	</table>
+</body>
+</html>
