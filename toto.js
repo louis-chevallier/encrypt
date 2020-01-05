@@ -21,6 +21,9 @@ var digits = "0123456789";
 var alphas = "abcdefghijklmnopqrstuvwxyz";
 var alphaCs = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 var special = "_&#!?:;$=+-"
+
+var mark = "~"
+
 var tt = [ "christine", "louis", "bernard", "fanny", "solene", "david", "chevallier", "bordeau"];
 var conc = ""
 for (var i = 0; i < tt.length; i++) {
@@ -34,13 +37,10 @@ for (var i = 0; i < tt.length; i++) {
 }
 conc = conc + conc.toUpperCase()
 var enc = digits + alphas + alphaCs + special
-console.log(conc.length)
-console.log(conc)
 //console.log(enc)
-console.log(enc.length)
 cl = conc.length 
 enc = [enc.substring(0, cl), enc.substring(cl, cl*2), enc.substring(cl*2, 9999)]
-console.log(enc)
+enc.push(mark)
 var alpha = "";
 var alphaC = []
 for (var i = 'a'.charCodeAt(0); i <= 'z'.charCodeAt(0); i++) {
@@ -50,44 +50,77 @@ for (var i = 'a'.charCodeAt(0); i <= 'z'.charCodeAt(0); i++) {
     //console.log("cc=" + cc)
     alphaC.push(cc)
 }
-console.log(alphaC)
-function decrypt()
-{
+
+e1 = encode("0aA+-")
+e2 = encode(e1)
+e2 = encode(e2)
+d2 = decode(e2)
+d1 = decode(d2)
+d0 = decode(d1)
+//console.log(d0)
+
+
+function decrypt() {
     todecryptE = document.getElementById('todecrypt');
     toencryptE = document.getElementById('toencrypt');
-    decode(conc, enc, todecryptE, toencryptE, false)
+    toencryptE.value = decode(todecryptE.value)
 }
 function encrypt()
 {
     todecryptE = document.getElementById('todecrypt');
     toencryptE = document.getElementById('toencrypt');
-    encode(enc, conc, toencryptE, todecryptE, true)
+    todecryptE.value = encode(toencryptE.value)
+}
+
+function decodec(c, n, d) {
+    console.assert(n < enc.length)
+    idx = conc.indexOf(c)
+    var res = "?"
+    if (idx >= 0) {
+        res = enc[n].substring(idx, idx+1)
+    }
+    return res
 }
 
 function encodec(c, n, d) {
-    console.log(["c=" + c, "n=" + n, "d=" + d])
     console.assert(n < enc.length)
     idx = enc[n].indexOf(c)
     var res = "?"
     if (idx >= 0) {
         res = d + conc.substring(idx, idx+1)
     } else {
-        res = d + encodec(c, n+1, d + "&")
+        res = d + encodec(c, n+1, mark)
     }
-    console.log("res=" + res)
     return res
 }
 
-function encode(from, to, src, txt, lower) {
-    var t = src.value
-    console.log("t=" + t)
-    //alert(t)
+function encode(t) {
     code = ""
     for (var j = 0; j < t.length; j++) {
 	c = t.charAt(j)
         code += encodec(c, 0, "")
     }				
-    txt.value = code
+    return code
+}
+
+function decode(t) {
+    //alert(t)
+    code = ""
+    var nn=0
+    for (var j = 0; j < t.length; j++) {
+	c = t.charAt(j)
+        if (c == mark) {
+            nn ++
+            if (nn > enc.length) {
+                code += mark
+                j++
+            }
+        } else {
+            code += decodec(c, nn, "")
+            nn = 0
+        }
+    }				
+    return code
 }
 
 
