@@ -101,6 +101,7 @@ function decrypt() {
     todecryptE = document.getElementById('todecrypt');
     toencryptE = document.getElementById('toencrypt');
     toencryptE.value = decode(todecryptE.value)
+
 }
 
 function encrypt()
@@ -108,6 +109,7 @@ function encrypt()
     todecryptE = document.getElementById('todecrypt');
     toencryptE = document.getElementById('toencrypt');
     todecryptE.value = encode(toencryptE.value)
+    console.assert(decode(todecryptE.value) == toencryptE.value)
 }
 
 
@@ -207,6 +209,10 @@ function decode(t) {
 
   </script>
 </head>
+<style>
+input[type='text'] { font-size: 50px; }
+*{ font-size : 40px; }
+</style>
 <body>
 	<table id="table1">
       <tr>
