@@ -7,6 +7,8 @@
   <script type="text/javascript" >
 
 
+
+
 /* 
    var hash = CryptoJS.SHA1("Message");
    console.log(hash)
@@ -29,6 +31,21 @@ var digits = "0123456789";
 var alphas = "abcdefghijklmnopqrstuvwxyz";
 var alphaCs = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 var special = "_&#!?:;$=+-"
+var bseed = 969703;
+var seed;
+
+function reset() {
+    K = 2147483647;    
+    seed = bseed % K
+    if (seed <= 0) 
+        seed += K
+}
+
+reset()
+
+
+
+console.log(seed)
 
 var mark = "~"
 
@@ -45,10 +62,10 @@ for (var i = 0; i < tt.length; i++) {
 }
 conc = conc + conc.toUpperCase()
 var enc = digits + alphas + alphaCs + special
-//console.log(enc)
+console.log(enc)
 cl = conc.length 
-enc = [enc.substring(0, cl), enc.substring(cl, cl*2), enc.substring(cl*2, 9999)]
-enc.push(mark)
+var Menc = [enc.substring(0, cl), enc.substring(cl, cl*2), enc.substring(cl*2, 9999)]
+Menc.push(mark)
 var alpha = "";
 var alphaC = []
 for (var i = 'a'.charCodeAt(0); i <= 'z'.charCodeAt(0); i++) {
@@ -59,12 +76,23 @@ for (var i = 'a'.charCodeAt(0); i <= 'z'.charCodeAt(0); i++) {
     alphaC.push(cc)
 }
 
-e1 = encode("0aA+-")
-e2 = encode(e1)
-e2 = encode(e2)
-d2 = decode(e2)
-d1 = decode(d2)
-d0 = decode(d1)
+e1 = encode("abcacd0101_")
+console.log(e1)
+d1 = decode(e1)
+console.log(d1)
+
+for (var i = 0; i < 10; i++)
+    e1 = encode(e1)
+for (var i = 0; i < 10; i++)
+    e1 = decode(e1)
+console.log(e1)
+
+//e1 = encode("0aA+-")
+//e2 = encode(e1)
+//e2 = encode(e2)
+//d2 = decode(e2)
+//d1 = decode(d2)
+//d0 = decode(d1)
 //console.log(d0)
 
 
@@ -72,22 +100,44 @@ function decrypt() {
     todecryptE = document.getElementById('todecrypt');
     toencryptE = document.getElementById('toencrypt');
     toencryptE.value = decode(todecryptE.value)
-    toencryptE.select();
-    document.execCommand('copy');
-    todecryptE.focus();
 }
+
 function encrypt()
 {
     todecryptE = document.getElementById('todecrypt');
     toencryptE = document.getElementById('toencrypt');
-    str = todecryptE.value = encode(toencryptE.value)
-    todecryptE.select();
-    document.execCommand('copy');
-    toencryptE.focus();
+    todecryptE.value = encode(toencryptE.value)
 }
 
 
-function decodec(c, n, d) {
+function random(c) {
+    //console.log(seed)
+    seed = seed * 16807 % 2147483647;
+    //console.log(seed)
+    return (seed % 2) - 0.5
+}
+
+function shuffleA(t, c) {
+    //console.log(t)
+    a = Array.from(t)
+    //console.log(a)
+    a.sort( () => random(c) ) 
+    //console.log(a)
+    return a.join("")
+}
+
+function shuffle(t, c) {
+    //console.log(c)
+    var res = []
+    for (var i = 0; i < t.length; i++) {
+        res.push( shuffleA(t[i], c))
+    }
+    //console.log(res)
+    return res
+}
+
+
+function decodec(c, n, d, enc) {
     console.assert(n < enc.length)
     idx = conc.indexOf(c)
     var res = "?"
@@ -97,24 +147,32 @@ function decodec(c, n, d) {
     return res
 }
 
-function encodec(c, n, d) {
+function encodec(c, n, d, enc) {
     console.assert(n < enc.length)
     idx = enc[n].indexOf(c)
     var res = "?"
     if (idx >= 0) {
-        res = d + conc.substring(idx, idx+1)
+        ss = conc.substring(idx, idx+1)
+        res = d + ss
     } else {
-        res = d + encodec(c, n+1, mark)
+        res = d + encodec(c, n+1, mark, enc)
     }
     return res
 }
 
 function encode(t) {
     code = ""
+    enc = Menc
+    reset()
+    //console.log(enc)
     for (var j = 0; j < t.length; j++) {
 	c = t.charAt(j)
-        code += encodec(c, 0, "")
-    }				
+        ecode = encodec(c, 0, "", enc)
+        code += ecode
+        enc = shuffle(enc, c)
+    }		
+    //console.log(code)
+    //console.log(Menc)
     return code
 }
 
@@ -122,6 +180,8 @@ function decode(t) {
     //alert(t)
     code = ""
     var nn=0
+    enc = Menc
+    reset()
     for (var j = 0; j < t.length; j++) {
 	c = t.charAt(j)
         if (c == mark) {
@@ -131,12 +191,15 @@ function decode(t) {
                 j++
             }
         } else {
-            code += decodec(c, nn, "")
+            ecode = decodec(c, nn, "", enc)
+            code += ecode
+            enc = shuffle(enc, ecode)
             nn = 0
         }
     }				
     return code
 }
+
 
 
 

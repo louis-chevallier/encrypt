@@ -39,8 +39,8 @@ conc = conc + conc.toUpperCase()
 var enc = digits + alphas + alphaCs + special
 //console.log(enc)
 cl = conc.length 
-enc = [enc.substring(0, cl), enc.substring(cl, cl*2), enc.substring(cl*2, 9999)]
-enc.push(mark)
+Menc = [enc.substring(0, cl), enc.substring(cl, cl*2), enc.substring(cl*2, 9999)]
+Menc.push(mark)
 var alpha = "";
 var alphaC = []
 for (var i = 'a'.charCodeAt(0); i <= 'z'.charCodeAt(0); i++) {
@@ -65,6 +65,7 @@ function decrypt() {
     toencryptE = document.getElementById('toencrypt');
     toencryptE.value = decode(todecryptE.value)
 }
+
 function encrypt()
 {
     todecryptE = document.getElementById('todecrypt');
@@ -72,7 +73,32 @@ function encrypt()
     todecryptE.value = encode(toencryptE.value)
 }
 
-function decodec(c, n, d) {
+seed = 969703
+_seed = seed % 2147483647;
+if (_seed <= 0) 
+    _seed += 2147483646;
+
+function random(c) {
+    _seed * 16807 % 2147483647;
+    return float(_seed % 2) -0.5
+}
+
+function shuffleA(t, c) {
+    a = t
+    a.sort( () => random(c) ) 
+    return a
+}
+
+function shuffle(t, c) {
+    console.log(c)
+    for (var i = 0; i < t.length; i++) {
+        t[i] = shuffleA(t[i], c)
+    }
+    console.log(t)
+}
+
+
+function decodec(c, n, d, enc) {
     console.assert(n < enc.length)
     idx = conc.indexOf(c)
     var res = "?"
@@ -82,7 +108,7 @@ function decodec(c, n, d) {
     return res
 }
 
-function encodec(c, n, d) {
+function encodec(c, n, d, enc) {
     console.assert(n < enc.length)
     idx = enc[n].indexOf(c)
     var res = "?"
@@ -96,9 +122,12 @@ function encodec(c, n, d) {
 
 function encode(t) {
     code = ""
+    enc = Menc
     for (var j = 0; j < t.length; j++) {
 	c = t.charAt(j)
-        code += encodec(c, 0, "")
+        ecode = encodec(c, 0, "", enc)
+        code += ecode
+        enc = shuffle(Menc, c)
     }				
     return code
 }
@@ -107,6 +136,7 @@ function decode(t) {
     //alert(t)
     code = ""
     var nn=0
+    enc = Menc
     for (var j = 0; j < t.length; j++) {
 	c = t.charAt(j)
         if (c == mark) {
@@ -116,7 +146,9 @@ function decode(t) {
                 j++
             }
         } else {
-            code += decodec(c, nn, "")
+            ecode = decodec(c, nn, "", enc)
+            code += ecode
+            enc = shuffle(enc, ecode)
             nn = 0
         }
     }				
