@@ -80,12 +80,13 @@ e1 = encode("abcacd0101_")
 console.log(e1)
 d1 = decode(e1)
 console.log(d1)
-
-for (var i = 0; i < 10; i++)
-    e1 = encode(e1)
-for (var i = 0; i < 10; i++)
-    e1 = decode(e1)
-console.log(e1)
+if (1 > 2) {
+    for (var i = 0; i < 10; i++)
+        e1 = encode(e1)
+    for (var i = 0; i < 10; i++)
+        e1 = decode(e1)
+    console.log(e1)
+}
 
 //e1 = encode("0aA+-")
 //e2 = encode(e1)
