@@ -34,9 +34,10 @@ var special = "_&#!?:;$=+-"
 var bseed = 969703;
 var seed;
 
-function reset() {
+function reset(passwd="1234") {
+    a = b = c = d = parseInt(passwd)
     var K = 2147483647;    
-    //var K=4294967296
+    var Kx =4294967296
     seed = bseed % K
     if (seed <= 0) 
         seed += K
@@ -51,17 +52,18 @@ function reset() {
             d = d + 1 | 0;
             t = t + d | 0;
             c = c + t | 0;
-            return (t >>> 0) / K;
+            return (t >>> 0) / Kx;
         }
         return function(n=1) {
-            console.log(n)
+//            console.log(n)
+            var r = 0
             for (var i = 0; i < n; i++) r = fct()
             return r
         }
     }
 
-    rnd = sfc32(1231+K,123+K, 123+K, 123+K)
-
+    rnd = sfc32(a, b, c, d)
+    rnd('b')
 }
 
 reset()
@@ -87,6 +89,7 @@ for (var i = 0; i < tt.length; i++) {
         }
     }
 }
+
 conc = conc + conc.toUpperCase()
 var enc = digits + alphas + alphaCs + special
 console.log(enc)
@@ -115,6 +118,45 @@ if (1 > 2) {
     console.log(e1)
 }
 
+function getCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    console.log(ca)
+    for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    }
+    return null;
+}
+
+
+
+function setCookie(name,value,days) {
+    var expires = "";
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days*24*60*60*1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "")  + expires + "; path=/" + "; SameSite=None; Secure";
+    console.log(document.cookie)
+}
+
+function eraseCookie(name) {   
+    document.cookie = name+'=; Max-Age=-99999999;';  
+}
+
+var x = getCookie('crypto');
+if (x) {
+    console.log(x)
+    reset(x)
+    passE = document.getElementById('pass');
+    passE.value(x)
+    
+} 
+
+
 //e1 = encode("0aA+-")
 //e2 = encode(e1)
 //e2 = encode(e2)
@@ -128,7 +170,13 @@ function decrypt() {
     todecryptE = document.getElementById('todecrypt');
     toencryptE = document.getElementById('toencrypt');
     toencryptE.value = decode(todecryptE.value)
+}
 
+function setpass() {
+    passE = document.getElementById('pass');
+    reset(passE.value)
+    setCookie('crypto', passE.value, 7);
+    console.log(getCookie('crypto'))
 }
 
 function encrypt()
@@ -196,7 +244,7 @@ function encode(t) {
     code = ""
     enc = Menc
     reset()
-    //console.log(enc)
+    shuffle(enc, 'a')
     for (var j = 0; j < t.length; j++) {
 	c = t.charAt(j)
         ecode = encodec(c, 0, "", enc)
@@ -214,6 +262,7 @@ function decode(t) {
     var nn=0
     enc = Menc
     reset()
+    shuffle(enc, 'a')
     for (var j = 0; j < t.length; j++) {
 	c = t.charAt(j)
         if (c == mark) {
@@ -245,15 +294,24 @@ input[type='text'] { font-size: 150px; }
 <body>
 	<table id="table1">
       <tr>
-        <td>D:</td>
+        <td>Dec:</td>
         <td><input type="text" id="todecrypt" onkeyup="decrypt();0" size=50  autocorrect="off" autocapitalize="none" /></td>
         <td><div id="errFirst"></div></td>
       </tr>
       <tr>
-        <td>E:</td>
+        <td>Enc:</td>
         <td><input type="text" id="toencrypt" onkeyup="encrypt();" size=50 autocorrect="off" autocapitalize="none" /></td>
         <td><div id="errLast"></div></td>
       </tr>
+
+<!--
+
+      <tr>
+        <td>Pass:</td>
+        <td><input type="password" id="pass" onkeyup="setpass();" size=50 autocorrect="off" autocapitalize="none" /></td>
+        <td><div id="errLast"></div></td>
+      </tr>
+--!>
       
 	</table>
 </body>
