@@ -35,15 +35,42 @@ var bseed = 969703;
 var seed;
 
 function reset() {
-    K = 2147483647;    
+    var K = 2147483647;    
+    //var K=4294967296
     seed = bseed % K
     if (seed <= 0) 
         seed += K
+
+    function sfc32(a, b, c, d) {
+        fct = function() {
+            a >>>= 0; b >>>= 0; c >>>= 0; d >>>= 0; 
+            var t = (a + b) | 0;
+            a = b ^ b >>> 9;
+            b = c + (c << 3) | 0;
+            c = (c << 21 | c >>> 11);
+            d = d + 1 | 0;
+            t = t + d | 0;
+            c = c + t | 0;
+            return (t >>> 0) / K;
+        }
+        return function(n=1) {
+            console.log(n)
+            for (var i = 0; i < n; i++) r = fct()
+            return r
+        }
+    }
+
+    rnd = sfc32(1231+K,123+K, 123+K, 123+K)
+
 }
 
 reset()
 
+console.log(rnd(3))
+console.log(rnd(100))
+console.log(rnd(101))
 
+//console.log(Math.random())
 
 console.log(seed)
 
@@ -114,6 +141,8 @@ function encrypt()
 
 
 function random(c) {
+    nc = c.charCodeAt(0)
+    return rnd(nc) - 0.5
     //console.log(seed)
     seed = seed * 16807 % 2147483647;
     //console.log(seed)
