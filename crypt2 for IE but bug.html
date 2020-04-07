@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Form Validation</title>
+ <!--
+  <script type="text/javascript" src="crypto-js/crypto-js.js"></script>
+ -->
+  <script type="text/javascript" >
+
+
+
+
+/* 
+   var hash = CryptoJS.SHA1("Message");
+   console.log(hash)
+
+   var secret = 'secret key 123'
+
+   var data = [{id: 1}, {id: 2}]
+   data = "zob"
+   // Encrypt
+   var ciphertext = CryptoJS.Rabbit.encrypt(JSON.stringify(data), secret,  { outputLength: 16 } );
+   console.trace(ciphertext.toString());
+
+   // Decrypt
+   var bytes  = CryptoJS.Rabbit.decrypt(ciphertext.toString(), secret);
+   var decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+
+   console.trace(decryptedData);
+*/
+
+
+
+
+
+if (!Array.from) {
+  Array.from = (function () {
+    var toStr = Object.prototype.toString;
+    var isCallable = function (fn) {
+      return typeof fn === 'function' || toStr.call(fn) === '[object Function]';
+    };
+    var toInteger = function (value) {
+      var number = Number(value);
+      if (isNaN(number)) { return 0; }
+      if (number === 0 || !isFinite(number)) { return number; }
+      return (number > 0 ? 1 : -1) * Math.floor(Math.abs(number));
+    };
+    var maxSafeInteger = Math.pow(2, 53) - 1;
+    var toLength = function (value) {
+      var len = toInteger(value);
+      return Math.min(Math.max(len, 0), maxSafeInteger);
+    };
+
+    // The length property of the from method is 1.
+    return function from(arrayLike/*, mapFn, thisArg */) {
+      // 1. Let C be the this value.
+      var C = this;
+
+      // 2. Let items be ToObject(arrayLike).
+      var items = Object(arrayLike);
+
+      // 3. ReturnIfAbrupt(items).
+      if (arrayLike == null) {
+        throw new TypeError('Array.from requires an array-like object - not null or undefined');
+      }
+
+      // 4. If mapfn is undefined, then let mapping be false.
+      var mapFn = arguments.length > 1 ? arguments[1] : void undefined;
+      var T;
+      if (typeof mapFn !== 'undefined') {
+        // 5. else
+        // 5. a If IsCallable(mapfn) is false, throw a TypeError exception.
+        if (!isCallable(mapFn)) {
+          throw new TypeError('Array.from: when provided, the second argument must be a function');
+        }
+
+        // 5. b. If thisArg was supplied, let T be thisArg; else let T be undefined.
+        if (arguments.length > 2) {
+          T = arguments[2];
+        }
+      }
+
+      // 10. Let lenValue be Get(items, "length").
+      // 11. Let len be ToLength(lenValue).
+      var len = toLength(items.length);
+
+      // 13. If IsConstructor(C) is true, then
+      // 13. a. Let A be the result of calling the [[Construct]] internal method 
+      // of C with an argument list containing the single item len.
+      // 14. a. Else, Let A be ArrayCreate(len).
+      var A = isCallable(C) ? Object(new C(len)) : new Array(len);
+
+      // 16. Let k be 0.
+      var k = 0;
+      // 17. Repeat, while k < len… (also steps a - h)
+      var kValue;
+      while (k < len) {
+        kValue = items[k];
+        if (mapFn) {
+          A[k] = typeof T === 'undefined' ? mapFn(kValue, k) : mapFn.call(T, kValue, k);
+        } else {
+          A[k] = kValue;
+        }
+        k += 1;
+      }
+      // 18. Let putStatus be Put(A, "length", len, true).
+      A.length = len;
+      // 20. Return A.
+      return A;
+    };
+  }());
+}
+
+
+
+
+
+var digits = "0123456789";
+var alphas = "abcdefghijklmnopqrstuvwxyz";
+var alphaCs = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+var special = "_&#!?:;$=+-"
+var bseed = 969703;
+var seed;
+
+function reset(passwd) {
+	passwd = passwd || "1234"
+	
+
+    a = b = c = d = parseInt(passwd)
+    var K = 2147483647;    
+    var Kx =4294967296
+    seed = bseed % K
+    if (seed <= 0) 
+        seed += K
+
+    function sfc32(a, b, c, d) {
+        fct = function() {
+            a >>>= 0; b >>>= 0; c >>>= 0; d >>>= 0; 
+            var t = (a + b) | 0;
+            a = b ^ b >>> 9;
+            b = c + (c << 3) | 0;
+            c = (c << 21 | c >>> 11);
+            d = d + 1 | 0;
+            t = t + d | 0;
+            c = c + t | 0;
+            return (t >>> 0) / Kx;
+        }
+        return function(n) {
+			n = n||1
+//            console.log(n)
+            var r = 0
+            for (var i = 0; i < n; i++) r = fct()
+            return r
+        }
+    }
+
+    rnd = sfc32(a, b, c, d)
+    rnd('b')
+}
+
+reset()
+
+console.log(rnd(3))
+console.log(rnd(100))
+console.log(rnd(101))
+
+//console.log(Math.random())
+
+console.log(seed)
+
+var mark = "~"
+
+var tt = [ "christine", "louis", "bernard", "fanny", "solene", "david", "chevallier", "bordeau"];
+var conc = ""
+for (var i = 0; i < tt.length; i++) {
+    var str = tt[i];
+    for (var j = 0; j < str.length; j++) {
+        c = str.charAt(j)
+		//console.log(conc);
+        if (! conc.indexOf(String(c)) >= 0) {
+            conc += String(c)
+        }
+    }
+}
+
+conc = conc + conc.toUpperCase()
+var enc = digits + alphas + alphaCs + special
+console.log(enc)
+cl = conc.length 
+var Menc = [enc.substring(0, cl), enc.substring(cl, cl*2), enc.substring(cl*2, 9999)]
+Menc.push(mark)
+var alpha = "";
+var alphaC = []
+for (var i = 'a'.charCodeAt(0); i <= 'z'.charCodeAt(0); i++) {
+    //console.log("i=" + i)
+    n = i - 'a'.charCodeAt(0)
+    cc = String("00" + String(n)).slice(-2)
+    //console.log("cc=" + cc)
+    alphaC.push(cc)
+}
+
+e1 = encode("abcacd0101_")
+console.log(e1)
+d1 = decode(e1)
+console.log(d1)
+if (1 > 2) {
+    for (var i = 0; i < 10; i++)
+        e1 = encode(e1)
+    for (var i = 0; i < 10; i++)
+        e1 = decode(e1)
+    console.log(e1)
+}
+
+function getCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    console.log(ca)
+    for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    }
+    return null;
+}
+
+
+
+function setCookie(name,value,days) {
+    var expires = "";
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days*24*60*60*1000));
+        expires = '; expires="' + date.toUTCString() + '"';
+    }
+	dc = name + '="' + (value || '') + '"'  + expires + '; path="/"' + "; SameSite=None; Secure";
+    document.cookie = dc
+    console.log(dc)
+    console.log(document.cookie)
+    console.log(getCookie(name))
+}
+
+function eraseCookie(name) {   
+    document.cookie = name+'=; Max-Age=-99999999;';  
+}
+
+var x = getCookie('crypto');
+if (x) {
+    console.log(x)
+    reset(x)
+    passE = document.getElementById('pass');
+    passE.value(x)
+    
+} 
+
+
+//e1 = encode("0aA+-")
+//e2 = encode(e1)
+//e2 = encode(e2)
+//d2 = decode(e2)
+//d1 = decode(d2)
+//d0 = decode(d1)
+//console.log(d0)
+
+
+function decrypt() {
+    todecryptE = document.getElementById('todecrypt');
+    toencryptE = document.getElementById('toencrypt');
+    toencryptE.value = decode(todecryptE.value)
+}
+
+function setpass() {
+    passE = document.getElementById('pass');
+    reset(passE.value)
+    setCookie('crypto', passE.value, 777);
+    console.log(getCookie('crypto'));
+	encrypt()
+}
+
+function encrypt()
+{
+    todecryptE = document.getElementById('todecrypt');
+    toencryptE = document.getElementById('toencrypt');
+    todecryptE.value = encode(toencryptE.value)
+    console.assert(decode(todecryptE.value) == toencryptE.value)
+}
+
+
+function random(c) {
+    nc = c.charCodeAt(0)
+    return rnd(nc) - 0.5
+    //console.log(seed)
+    seed = seed * 16807 % 2147483647;
+    //console.log(seed)
+    return (seed % 2) - 0.5
+}
+
+function shuffleA(t, c) {
+    //console.log(t)
+    a = Array.from(t)
+    //console.log(a)
+	a.sort( () => random(c) )
+
+	//rc = random(c)
+    //a.sort( function(_a, _b) { return rc } ) 
+
+    //console.log(a)
+    return a.join("")
+}
+
+function shuffle(t, c) {
+    //console.log(c)
+    var res = []
+    for (var i = 0; i < t.length; i++) {
+        res.push( shuffleA(t[i], c))
+    }
+    //console.log(res)
+    return res
+}
+
+
+function decodec(c, n, d, enc) {
+    console.assert(n < enc.length)
+    idx = conc.indexOf(c)
+    var res = "?"
+    if (idx >= 0) {
+        res = enc[n].substring(idx, idx+1)
+    }
+    return res
+}
+
+function encodec(c, n, d, enc) {
+    console.assert(n < enc.length)
+    idx = enc[n].indexOf(c)
+    var res = "?"
+    if (idx >= 0) {
+        ss = conc.substring(idx, idx+1)
+        res = d + ss
+    } else {
+        res = d + encodec(c, n+1, mark, enc)
+    }
+    return res
+}
+
+function encode(t) {
+    code = ""
+    enc = Menc
+    reset()
+    shuffle(enc, 'a')
+    for (var j = 0; j < t.length; j++) {
+	c = t.charAt(j)
+        ecode = encodec(c, 0, "", enc)
+        code += ecode
+        enc = shuffle(enc, c)
+    }		
+    //console.log(code)
+    //console.log(Menc)
+    return code
+}
+
+function decode(t) {
+    //alert(t)
+    code = ""
+    var nn=0
+    enc = Menc
+    reset()
+    shuffle(enc, 'a')
+    for (var j = 0; j < t.length; j++) {
+	c = t.charAt(j)
+        if (c == mark) {
+            nn ++
+            if (nn > enc.length) {
+                code += mark
+                j++
+            }
+        } else {
+            ecode = decodec(c, nn, "", enc)
+            code += ecode
+            enc = shuffle(enc, ecode)
+            nn = 0
+        }
+    }				
+    return code
+}
+
+  </script>
+
+
+
+</head>
+<style>
+input[type='text'] { font-size: 150px; }
+*{ font-size : 110px; }
+</style>
+<body>
+	<table id="table1">
+      <tr>
+        <td>codé:</td>
+        <td><input type="text" id="todecrypt" onkeyup="decrypt();0" size=50  autocorrect="off" autocapitalize="none" /></td>
+        <td><div id="errFirst"></div></td>
+      </tr>
+      <tr>
+        <td>source:</td>
+        <td><input type="text" id="toencrypt" onkeyup="encrypt();" size=50 autocorrect="off" autocapitalize="none" /></td>
+        <td><div id="errLast"></div></td>
+      </tr>
+
+      <tr>
+        <td>Pass:</td>
+        <td><input type="text" id="pass" onkeyup="setpass();" size=50 autocorrect="off" autocapitalize="none" /></td>
+        <td><div id="errLast"></div></td>
+      </tr>
+
+      
+	</table>
+</body>
+</html>
