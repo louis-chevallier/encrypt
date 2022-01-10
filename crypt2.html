@@ -34,8 +34,13 @@ var special = "_&#!?:;$=+-"
 var bseed = 969703;
 var seed;
 
-function reset(passwd="1234") {
-    a = b = c = d = parseInt(passwd)
+
+
+function reset(p1="12345", p2="6", p3="7", p4="9") {
+    a =  parseInt(p1)
+	b = parseInt(p2)
+	c = parseInt(p3)
+	d = parseInt(p4)
     var K = 2147483647;    
     var Kx =4294967296
     seed = bseed % K
@@ -122,8 +127,10 @@ function getCookie(name) {
     var nameEQ = name + "=";
     var ca = document.cookie.split(';');
     console.log(ca)
+	console.log(document.cookie)
     for(var i=0;i < ca.length;i++) {
         var c = ca[i];
+		console.log(c)
         while (c.charAt(0)==' ') c = c.substring(1,c.length);
         if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
     }
@@ -131,15 +138,21 @@ function getCookie(name) {
 }
 
 
-
 function setCookie(name,value,days) {
     var expires = "";
+	var expDate = new Date();
+
+	expDate.setDate(expDate.getDate() + 365);
+
+	expires = expDate.toGMTString();
     if (days) {
         var date = new Date();
         date.setTime(date.getTime() + (days*24*60*60*1000));
         expires = "; expires=" + date.toUTCString();
     }
-    document.cookie = name + "=" + (value || "")  + expires + "; path=/" + "; SameSite=None; Secure";
+	ck= name + "=" + (value || "")  +  "; path=/; SameSite=None; Secure; expires=" + expires
+	console.log(ck)
+    document.cookie = ck
     console.log(document.cookie)
 }
 
@@ -304,14 +317,14 @@ input[type='text'] { font-size: 150px; }
         <td><div id="errLast"></div></td>
       </tr>
 
-<!--
+
 
       <tr>
         <td>Pass:</td>
         <td><input type="password" id="pass" onkeyup="setpass();" size=50 autocorrect="off" autocapitalize="none" /></td>
         <td><div id="errLast"></div></td>
       </tr>
---!>
+
       
 	</table>
 </body>
